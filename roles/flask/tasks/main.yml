@@ -1,0 +1,92 @@
+---
+- name: Recursively change ownership of a directory
+  ansible.builtin.file:
+    path: /webapps/devops
+    state: directory
+    recurse: yes
+    mode: '0755'
+    owner: vagrant
+    group: vagrant
+  become: yes
+- name: Clone a repo with separate git directory
+  git:
+    repo: https://github.com/lumbans/devops-la-challenges.git
+    dest: /webapps/devops
+    clone: yes
+    force: yes
+- name: Change python package
+  ansible.builtin.lineinfile:
+    path: /webapps/devops/requirements.txt
+    regexp: '^Werkzeug'
+    line: Werkzeug==0.16.1
+- name: Install specified python requirements
+  pip:
+    requirements: /webapps/devops/requirements.txt
+  become: yes
+- name: Copy file systemd for flask python service
+  ansible.builtin.copy:
+    src: files/devops.service
+    dest: /lib/systemd/system/devops.service
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+- name: Copy file rsyslog for flask python service
+  ansible.builtin.copy:
+    src: files/devops.conf
+    dest: /etc/rsyslog.d/devops.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+- name: Copy file devops-logrotate for flask python service
+  ansible.builtin.copy:
+    src: files/devops-logrotate
+    dest: /etc/logrotate.d/devops-logrotate
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+#- name: Copy file nginx for flask python service
+#  ansible.builtin.copy:
+#    src: files/default
+#    dest: /etc/nginx/sites-available/default
+#    owner: root
+#    group: root
+#    mode: '0644'
+#  become: yes
+- name: Template nginx /etc/nginx/sites-available/default and restart nginx with handlers
+  ansible.builtin.template:
+    src: templates/default.j2
+    dest: /etc/nginx/sites-available/default
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+  notify:
+  - restart nginx
+#- name: restart nginx
+#  ansible.builtin.systemd:
+#    state: restarted
+#    name: nginx
+#  become: yes
+- name: Force systemd to reload
+  ansible.builtin.systemd:
+    daemon_reload: yes
+  become: yes
+- name: Force systemd to reload
+  ansible.builtin.systemd:
+    state: restarted
+    name: syslog
+  become: yes
+- name: restart and enable devops service
+  ansible.builtin.systemd:
+    state: restarted
+    name: devops
+    enabled: yes
+  become: yes
+- name: Refresh logrotate command
+  shell: logrotate -vf /etc/logrotate.d/devops-logrotate
+  args:
+    executable: /bin/bash
+  become: yes

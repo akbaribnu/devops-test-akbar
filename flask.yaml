@@ -1,0 +1,6 @@
+---
+- name: flask devops
+  hosts: flask
+  roles:
+    - common
+    - flask

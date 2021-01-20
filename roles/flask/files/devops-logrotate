@@ -1,0 +1,9 @@
+/var/log/devops.log {
+    daily
+    missingok
+    rotate 7
+    compress
+    create
+    copytruncate
+    su root root
+}
