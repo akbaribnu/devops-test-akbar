@@ -23,9 +23,9 @@
   pip:
     requirements: /webapps/devops/requirements.txt
   become: yes
-- name: Copy file systemd for flask python service
-  ansible.builtin.copy:
-    src: files/devops.service
+- name: Template devops.service systemd
+  ansible.builtin.template:
+    src: templates/devops.service.j2
     dest: /lib/systemd/system/devops.service
     owner: root
     group: root
@@ -47,14 +47,6 @@
     group: root
     mode: '0644'
   become: yes
-#- name: Copy file nginx for flask python service
-#  ansible.builtin.copy:
-#    src: files/default
-#    dest: /etc/nginx/sites-available/default
-#    owner: root
-#    group: root
-#    mode: '0644'
-#  become: yes
 - name: Template nginx /etc/nginx/sites-available/default and restart nginx with handlers
   ansible.builtin.template:
     src: templates/default.j2
@@ -65,11 +57,6 @@
   become: yes
   notify:
   - restart nginx
-#- name: restart nginx
-#  ansible.builtin.systemd:
-#    state: restarted
-#    name: nginx
-#  become: yes
 - name: Force systemd to reload
   ansible.builtin.systemd:
     daemon_reload: yes

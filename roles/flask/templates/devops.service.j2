@@ -1,0 +1,15 @@
+[Unit]
+Description=Devops Flask
+After=network.target
+
+[Service]
+User={{ ansible_user }}
+WorkingDirectory=/webapps/devops
+ExecStart=/usr/bin/python3 /webapps/devops/app.py
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=devops
+
+[Install]
+WantedBy=multi-user.target
