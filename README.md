@@ -1,6 +1,6 @@
 # DevOps Test Akbar
 
-Hello this repo for devops test
+Hello this repo for devops test, i use vagrant with image **ubuntu 20.04** for this test
 
 ## Getting Started
 
